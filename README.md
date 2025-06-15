@@ -19,3 +19,20 @@ This project is a Next.js application, likely a web-based system for inspections
 ## Next Steps
 
 To get started, take a look at `/src/app/page.tsx`.
+
+## Email Configuration
+
+Invitation emails are sent using Gmail's SMTP service. Configure the following
+environment variables in your `.env.local` file:
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-gmail-address@example.com
+SMTP_PASS=your-app-password
+SMTP_FROM="Inspection System <your-gmail-address@example.com>"
+APP_URL=http://localhost:3000
+```
+
+`APP_URL` should match the URL where your application runs. Gmail requires an
+app password if two-factor authentication is enabled.
