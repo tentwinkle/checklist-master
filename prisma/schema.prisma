@@ -1,0 +1,44 @@
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  firebaseUid String   @unique @map("firebase_uid")
+  username    String   @unique @map("username")
+  email       String   @unique @map("email")
+  password    String?  @map("password") // Not used by app for auth, Firebase handles it
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  phone       String?  @map("phone")
+  role        UserRole @map("role") // ADMIN, INSPECTOR, USER
+  isActive    Boolean? @default(true) @map("is_active")
+
+  @@map("users")
+}
+
+model Client {
+  id           Int      @id @default(autoincrement())
+  clientName   String   @map("client_name")
+  email        String   @unique @map("email")
+  companyName  String   @map("company_name")
+  phone        String?  @map("phone")
+  createdAt    DateTime @default(now()) @map("created_at")
+  firebaseUid  String   @unique @db.Char(100) @map("firebase_uid")
+
+  @@map("clients")
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  INSPECTOR
+  USER
+}
