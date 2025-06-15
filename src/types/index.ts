@@ -149,18 +149,13 @@ export interface QRCodeItem {
 
 // Navigation types
 export interface NavItem {
-  title: string
   href: string
-  icon: any
+  label: string
+  iconName: string
+  roles: UserRole[]
   badge?: string | number
-  children?: NavItem[]
-}
-
-export interface NavConfig {
-  superadmin: NavItem[]
-  admin: NavItem[]
-  inspector: NavItem[]
-  user: NavItem[]
+  group?: string
+  subItems?: NavItem[]
 }
 
 // Form types
