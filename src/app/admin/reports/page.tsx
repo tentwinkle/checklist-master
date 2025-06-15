@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FileText, Search, Download, Eye, AlertTriangle, CheckCircle, Clock, User, Building } from "lucide-react"
 import Link from "next/link"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { format } from 'date-fns';
 
 interface InspectionReport {
   id: string
@@ -286,7 +287,7 @@ export default function ReportsPage() {
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4 text-orange-500" />
                         <span className="text-sm text-orange-600">
-                          {report.followUpDate ? new Date(report.followUpDate).toLocaleDateString() : "Required"}
+                          {report.followUpDate ? format(new Date(report.followUpDate), 'MM/dd/yyyy') : "Required"}
                         </span>
                       </div>
                     ) : (
