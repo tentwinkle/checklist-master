@@ -1,48 +1,112 @@
-
-import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, Users, Building, ClipboardList, ScanLine, FileText, Settings, HardHat, ShieldCheck, FolderArchive, Users2 } from "lucide-react"; 
-import type { UserRole } from "@/types";
-
-export const iconMap = {
+import {
   LayoutDashboard,
-  Users, 
-  Building, 
-  ClipboardList, 
-  ScanLine,
-  FileText, 
+  Users,
+  Building,
+  ClipboardList,
+  FileText,
   Settings,
-  HardHat,
-  ShieldCheck,
-  FolderArchive, 
-  Users2, 
-};
+  MapPin,
+  ScanLine,
+  CheckSquare,
+  AlertTriangle,
+  BarChart3,
+  Layers,
+} from "lucide-react"
+import type { NavConfig } from "@/types"
 
-export interface NavItemConfig {
-  href: string;
-  label: string;
-  iconName: keyof typeof iconMap;
-  roles: UserRole[];
-  group?: string;
-  subItems?: NavItemConfig[];
+export const navConfig: NavConfig = {
+  superadmin: [
+    {
+      title: "Dashboard",
+      href: "/superadmin/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Organizations",
+      href: "/superadmin/organizations",
+      icon: Building,
+    },
+    {
+      title: "System Settings",
+      href: "/superadmin/settings",
+      icon: Settings,
+    },
+  ],
+  admin: [
+    {
+      title: "Dashboard",
+      href: "/admin/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Areas",
+      href: "/admin/areas",
+      icon: MapPin,
+    },
+    {
+      title: "Departments",
+      href: "/admin/departments",
+      icon: Building,
+    },
+    {
+      title: "Users",
+      href: "/admin/users",
+      icon: Users,
+    },
+    {
+      title: "Master Controls",
+      href: "/admin/master-controls",
+      icon: Layers,
+    },
+    {
+      title: "Templates",
+      href: "/admin/templates",
+      icon: ClipboardList,
+    },
+    {
+      title: "Reports",
+      href: "/admin/reports",
+      icon: FileText,
+    },
+    {
+      title: "Analytics",
+      href: "/admin/analytics",
+      icon: BarChart3,
+    },
+  ],
+  inspector: [
+    {
+      title: "Dashboard",
+      href: "/inspector/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Scan QR Code",
+      href: "/inspector/scan",
+      icon: ScanLine,
+    },
+    {
+      title: "My Inspections",
+      href: "/inspector/my-inspections",
+      icon: CheckSquare,
+    },
+    {
+      title: "Due Inspections",
+      href: "/inspector/due-inspections",
+      icon: AlertTriangle,
+      badge: "3",
+    },
+  ],
+  user: [
+    {
+      title: "Dashboard",
+      href: "/user/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "My Forms",
+      href: "/user/forms",
+      icon: ClipboardList,
+    },
+  ],
 }
-
-export const navConfig: NavItemConfig[] = [
-  // Super Admin
-  { href: "/superadmin/dashboard", label: "Dashboard", iconName: "LayoutDashboard", roles: ['SUPERADMIN'] },
-
-  // Organization Admin
-  { href: "/admin/dashboard", label: "Dashboard", iconName: "LayoutDashboard", roles: ['ADMIN'] },
-  { href: "/admin/users", label: "Manage Users", iconName: "Users", roles: ['ADMIN'] },
-  { href: "/admin/clients", label: "Manage Clients", iconName: "Users2", roles: ['ADMIN'] },
-  { href: "/admin/forms", label: "Forms", iconName: "FileText", roles: ['ADMIN'] },
-
-  // Inspector
-  { href: "/inspector/dashboard", label: "Dashboard", iconName: "LayoutDashboard", roles: ['INSPECTOR'] },
-  { href: "/inspector/scan", label: "Scan QR", iconName: "ScanLine", roles: ['INSPECTOR'] },
-  { href: "/inspector/my-inspections", label: "My Inspections", iconName: "ShieldCheck", roles: ['INSPECTOR'] },
-
-  // User
-  { href: "/user/dashboard", label: "Dashboard", iconName: "LayoutDashboard", roles: ['USER'] },
-  { href: "/user/forms", label: "Forms", iconName: "FileText", roles: ['USER'] },
-];
-
