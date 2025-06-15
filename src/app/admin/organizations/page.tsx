@@ -7,20 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Building, PlusCircle, AlertTriangle, CheckCircle, XCircle, Eye, Layers, MapPin, Users } from "lucide-react"
+import { Building, PlusCircle, AlertTriangle, CheckCircle, XCircle, Eye, Layers } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
-interface Organization {
-  id: number
-  name: string
-  address: string
-  contactEmail: string
-  contactPhone?: string
-  isActive: boolean
-  departmentCount: number
-  userCount: number
-  createdAt: string
-}
+import type { Organization } from "@/types"
 
 export default function OrganizationsPage() {
   const [organizations, setOrganizations] = useState<Organization[]>([])
@@ -32,43 +22,17 @@ export default function OrganizationsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        // Mock data for demonstration
-        const mockOrganizations: Organization[] = [
-          {
-            id: 1,
-            name: "Region Holbæk",
-            address: "Smedelundsgade 60, 4300 Holbæk",
-            contactEmail: "admin@regionholbaek.dk",
-            contactPhone: "+45 59 48 40 00",
-            isActive: true,
-            departmentCount: 8,
-            userCount: 24,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: 2,
-            name: "Rugvænget Afdeling",
-            address: "Rugvænget 12, 4300 Holbæk",
-            contactEmail: "rugvaenget@regionholbaek.dk",
-            contactPhone: "+45 59 48 41 00",
-            isActive: true,
-            departmentCount: 3,
-            userCount: 8,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: 3,
-            name: "Parkvej Facility",
-            address: "Parkvej 45, 4300 Holbæk",
-            contactEmail: "parkvej@regionholbaek.dk",
-            isActive: false,
-            departmentCount: 2,
-            userCount: 5,
-            createdAt: new Date().toISOString(),
-          },
-        ]
-
-        setOrganizations(mockOrganizations)
+        const response = await fetch('/api/organizations')
+        if (!response.ok) {
+          let errMsg = `Failed to fetch organizations: ${response.statusText}`
+          try {
+            const data = await response.json()
+            errMsg = data.details || data.error || errMsg
+          } catch { /* ignore */ }
+          throw new Error(errMsg)
+        }
+        const data: Organization[] = await response.json()
+        setOrganizations(data)
       } catch (err: any) {
         console.error("Error fetching organizations:", err)
         setError(err.message || "An unknown error occurred while fetching organizations.")
@@ -80,34 +44,25 @@ export default function OrganizationsPage() {
     fetchOrganizations()
   }, [])
 
-  const OrganizationRowSkeleton = () => (
-    <TableRow>
-      <TableCell>
-        <Skeleton className="h-5 w-10" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-5 w-32" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-5 w-48" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-5 w-40" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-5 w-16" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-5 w-16" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-6 w-20 rounded-full" />
-      </TableCell>
-      <TableCell className="text-right">
-        <Skeleton className="h-8 w-8 inline-block rounded-md" />
-      </TableCell>
-    </TableRow>
-  )
+const OrganizationRowSkeleton = () => (
+  <TableRow>
+    <TableCell>
+      <Skeleton className="h-5 w-10" />
+    </TableCell>
+    <TableCell>
+      <Skeleton className="h-5 w-32" />
+    </TableCell>
+    <TableCell>
+      <Skeleton className="h-5 w-24" />
+    </TableCell>
+    <TableCell>
+      <Skeleton className="h-6 w-20 rounded-full" />
+    </TableCell>
+    <TableCell className="text-right">
+      <Skeleton className="h-8 w-8 inline-block rounded-md" />
+    </TableCell>
+  </TableRow>
+)
 
   return (
     <>
@@ -142,10 +97,7 @@ export default function OrganizationsPage() {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Organization Name</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Contact Email</TableHead>
-                <TableHead>Departments</TableHead>
-                <TableHead>Users</TableHead>
+                <TableHead>Created</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -155,7 +107,7 @@ export default function OrganizationsPage() {
                 Array.from({ length: 3 }).map((_, index) => <OrganizationRowSkeleton key={`skeleton-${index}`} />)
               ) : organizations.length === 0 && !error ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center">
                       <Layers className="h-12 w-12 text-muted-foreground mb-2" />
                       <p className="text-muted-foreground">No organizations found.</p>
@@ -170,25 +122,7 @@ export default function OrganizationsPage() {
                   <TableRow key={org.id}>
                     <TableCell>{org.id}</TableCell>
                     <TableCell className="font-medium">{org.name}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{org.address}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{org.contactEmail}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="gap-1">
-                        <Building className="h-3 w-3" />
-                        {org.departmentCount}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="gap-1">
-                        <Users className="h-3 w-3" />
-                        {org.userCount}
-                      </Badge>
-                    </TableCell>
+                    <TableCell>{new Date(org.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       {org.isActive ? (
                         <Badge variant="default" className="gap-1">
@@ -203,16 +137,9 @@ export default function OrganizationsPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link href={`/admin/organizations/${org.id}`}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="hover:text-primary"
-                          title="View Organization Details"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                      <Button variant="ghost" size="icon" className="hover:text-primary" disabled>
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
