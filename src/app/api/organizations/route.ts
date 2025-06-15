@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import type { Organization } from '@/types';
+import { getFirebaseAdminAuth } from '@/lib/firebase-admin';
+import { sendInviteEmail } from '@/lib/mailer';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +47,15 @@ interface CreateOrgRequest {
   adminEmail: string;
 }
 
+function generatePassword(length = 12) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let pwd = '';
+  for (let i = 0; i < length; i++) {
+    pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return pwd;
+}
+
 // POST /api/organizations - create organization and first admin
 export async function POST(request: Request) {
   try {
@@ -65,11 +76,18 @@ export async function POST(request: Request) {
     }
     const org = orgResult[0];
 
-    // Create placeholder admin user linked to organization
+    const tempPassword = generatePassword();
+    const adminAuth = getFirebaseAdminAuth();
+    const userRecord = await adminAuth.createUser({
+      email: body.adminEmail,
+      password: tempPassword,
+      displayName: `${body.adminFirstName} ${body.adminLastName}`,
+    });
+
     const userResult = await sql`
       INSERT INTO users (firebase_uid, username, email, first_name, last_name, role, is_active, organization_id)
       VALUES (
-        ${`pending-${Date.now()}`},
+        ${userRecord.uid},
         ${body.adminEmail.split('@')[0]},
         ${body.adminEmail},
         ${body.adminFirstName},
@@ -81,8 +99,12 @@ export async function POST(request: Request) {
       RETURNING id
     `;
 
-    // In real implementation, send email with credentials here
-    console.log('Invite email would be sent to', body.adminEmail);
+    await sendInviteEmail({
+      to: body.adminEmail,
+      firstName: body.adminFirstName,
+      lastName: body.adminLastName,
+      tempPassword,
+    });
 
     const newOrg: Organization = {
       id: org.id,

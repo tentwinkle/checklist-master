@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { sendInviteEmail } from "@/lib/mailer"
 
 interface InviteUserRequest {
   email: string
@@ -36,12 +37,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Send invitation email
-    await sendInvitationEmail({
-      email: body.email,
+    await sendInviteEmail({
+      to: body.email,
       firstName: body.firstName,
       lastName: body.lastName,
       tempPassword,
-      role: body.role,
+      subject: "Welcome to Region Holbæk Inspection System",
     })
 
     return NextResponse.json({
@@ -64,44 +65,3 @@ function generateTemporaryPassword(): string {
   return password
 }
 
-async function sendInvitationEmail({
-  email,
-  firstName,
-  lastName,
-  tempPassword,
-  role,
-}: {
-  email: string
-  firstName: string
-  lastName: string
-  tempPassword: string
-  role: string
-}) {
-  // Mock email sending - in real implementation, use a service like SendGrid, AWS SES, etc.
-  console.log("Sending invitation email to:", email)
-  console.log("Email content:", {
-    to: email,
-    subject: "Welcome to Region Holbæk Inspection System",
-    body: `
-      Dear ${firstName} ${lastName},
-
-      You have been invited to join the Region Holbæk Inspection System as a ${role}.
-
-      Your login credentials:
-      Email: ${email}
-      Temporary Password: ${tempPassword}
-
-      Please log in at: ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/login
-
-      You will be required to change your password on first login.
-
-      Best regards,
-      Region Holbæk IT Team
-    `,
-  })
-
-  // Simulate email sending delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  return true
-}
