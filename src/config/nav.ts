@@ -87,6 +87,12 @@ export const navConfig: NavItemConfig[] = [
     roles: ["ADMIN"],
   },
   {
+    href: "/admin/organizations",
+    label: "Organizations",
+    iconName: "Building",
+    roles: ["ADMIN"],
+  },
+  {
     href: "/admin/users",
     label: "Users",
     iconName: "Users",
