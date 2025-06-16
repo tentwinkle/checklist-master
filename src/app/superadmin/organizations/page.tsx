@@ -1,183 +1,58 @@
-"use client";
-
-import Link from "next/link";
-import { useEffect, useState } from "react";
 import { PageTitle } from "@/components/shared/PageTitle";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Building,
-  PlusCircle,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Eye,
-  Layers,
-} from "lucide-react";
-import type { Organization } from "@/types";
+import { Users, BarChart3, LayoutDashboard } from "lucide-react"; // Removed Briefcase
+import Link from "next/link";
 
-export default function ManageOrganizationsPage() {
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchOrganizations = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetch("/api/organizations");
-        if (!response.ok) {
-          let errMsg = `Failed to fetch organizations: ${response.statusText}`;
-          try {
-            const data = await response.json();
-            errMsg = data.details || data.error || errMsg;
-          } catch {
-            /* ignore */
-          }
-          throw new Error(errMsg);
-        }
-        const data: Organization[] = await response.json();
-        setOrganizations(data);
-      } catch (err: any) {
-        console.error("Error fetching organizations:", err);
-        setError(
-          err.message ||
-            "An unknown error occurred while fetching organizations."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOrganizations();
-  }, []);
-
-  const OrganizationRowSkeleton = () => (
-    <TableRow>
-      <TableCell>
-        <Skeleton className="h-5 w-10" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-5 w-32" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-5 w-24" />
-      </TableCell>
-      <TableCell>
-        <Skeleton className="h-6 w-20 rounded-full" />
-      </TableCell>
-      <TableCell className="text-right">
-        <Skeleton className="h-8 w-8 inline-block rounded-md" />
-      </TableCell>
-    </TableRow>
-  );
+export default function SuperAdminDashboardPage() {
+  const stats = [
+    // { title: "Total Organizations", value: "15", icon: Briefcase, color: "text-blue-500" }, // Removed
+    { title: "Total Active Admins", value: "28", icon: Users, color: "text-green-500" }, // Assuming these are admins across all potential (now removed) orgs or system-wide admins
+    { title: "Pending System Approvals", value: "3", icon: BarChart3, color: "text-orange-500" }, // Generalized
+  ];
 
   return (
     <>
-      <PageTitle
-        title="Manage Organizations"
-        icon={Building}
-        description="Create and manage organizations within the system."
-        actions={
-          <Link href="/superadmin/organizations/add">
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Organization
+      <PageTitle title="Super Admin Dashboard" icon={LayoutDashboard} description="Overview of system activity and user management." />
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        {stats.map((stat) => (
+          <Card key={stat.title} className="shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className="text-xs text-muted-foreground">Updated just now</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle>System Administration</CardTitle>
+          <CardDescription>Perform high-level administrative tasks.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Links to User management might be relevant if SuperAdmins manage OrgAdmins directly */}
+           <Link href="/admin/users" legacyBehavior> 
+             <Button className="w-full justify-start text-left p-4 h-auto" variant="outline">
+              <Users className="mr-3 h-5 w-5 text-primary" />
+              <div>
+                <p className="font-semibold">Manage All Users</p>
+                <p className="text-xs text-muted-foreground">View and manage all user accounts in the system.</p>
+              </div>
             </Button>
           </Link>
-        }
-      />
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Organization List</CardTitle>
-          <CardDescription>All organizations in the system.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <div className="my-4 p-4 bg-destructive/10 border border-destructive/50 text-destructive rounded-md flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              <p>
-                <strong>Error:</strong> {error}
-              </p>
-            </div>
-          )}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 3 }).map((_, index) => (
-                  <OrganizationRowSkeleton key={`skeleton-${index}`} />
-                ))
-              ) : organizations.length === 0 && !error ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    <div className="flex flex-col items-center justify-center">
-                      <Layers className="h-12 w-12 text-muted-foreground mb-2" />
-                      <p className="text-muted-foreground">No organizations found.</p>
-                      <Link href="/superadmin/organizations/add" className="mt-2">
-                        <Button variant="outline">Add First Organization</Button>
-                      </Link>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                organizations.map((org) => (
-                  <TableRow key={org.id}>
-                    <TableCell>{org.id}</TableCell>
-                    <TableCell className="font-medium">{org.name}</TableCell>
-                    <TableCell>
-                      {new Date(org.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {org.isActive ? (
-                        <Badge variant="default" className="gap-1">
-                          <CheckCircle className="h-3 w-3" /> Active
-                        </Badge>
-                      ) : (
-                        <Badge variant="destructive" className="gap-1">
-                          <XCircle className="h-3 w-3" /> Inactive
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="hover:text-primary"
-                        disabled
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+           <Button className="w-full justify-start text-left p-4 h-auto" variant="outline" disabled>
+              <BarChart3 className="mr-3 h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-semibold">View System Logs (Soon)</p>
+                <p className="text-xs text-muted-foreground">Monitor system activity and errors.</p>
+              </div>
+            </Button>
         </CardContent>
       </Card>
     </>

@@ -16,13 +16,8 @@ import {
   ShieldCheck,
   FolderArchive,
   Briefcase,
-  LogOut,
-  Users2, // Ensure Users2 is imported
-  MapPin,
-  CheckSquare,
-  AlertTriangle,
-  BarChart3,
-  Layers
+  LogOut, 
+  Users2 // Ensure Users2 is imported
 } from "lucide-react";
 import {
   Sidebar,
@@ -59,11 +54,6 @@ const iconComponentMap: Record<keyof typeof globalIconMap, LucideIcon> = {
   FolderArchive,
   Briefcase,
   Users2, // Add Users2 mapping
-  MapPin,
-  CheckSquare,
-  AlertTriangle,
-  BarChart3,
-  Layers,
 };
 
 // Internal NavItem type for processing within this client component
