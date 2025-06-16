@@ -1,8 +1,6 @@
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -20,6 +18,10 @@ model User {
   phone       String?  @map("phone")
   role        UserRole @map("role") // ADMIN, INSPECTOR, USER
   isActive    Boolean? @default(true) @map("is_active")
+  
+  // Add organization relationship
+  clientId    Int?     @map("client_id")
+  client      Client?  @relation(fields: [clientId], references: [id])
 
   @@map("users")
 }
@@ -32,6 +34,9 @@ model Client {
   phone        String?  @map("phone")
   createdAt    DateTime @default(now()) @map("created_at")
   firebaseUid  String   @unique @db.Char(100) @map("firebase_uid")
+  
+  // Add users relationship
+  users        User[]
 
   @@map("clients")
 }

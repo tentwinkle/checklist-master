@@ -18,7 +18,7 @@ export async function GET(
   request: Request,
   { params }: { params: { userId: string } } // userId here is firebaseUid
 ) {
-  const { userId: firebaseUid } = params;
+  const { userId: firebaseUid } = await params;
 
   if (!firebaseUid) {
     return NextResponse.json({ error: 'Invalid Firebase User ID provided.' }, { status: 400 });
